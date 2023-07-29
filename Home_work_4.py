@@ -40,21 +40,31 @@ class HashMap:
             self.current_bucket_index = 0
             self.current_bucket_list = None
             self.list_iterator = None
-            self.find_next_bucket()
 
         def find_next_bucket(self):
             while self.current_bucket_index < len(self.buckets):
                 if self.buckets[self.current_bucket_index] is not None:
                     self.current_bucket_list = self.buckets[self.current_bucket_index].list
                     self.list_iterator = iter(self.current_bucket_list)
-                    break
+                    return
                 self.current_bucket_index += 1
+            raise StopIteration
 
         def __iter__(self):
             return self
 
         def __next__(self):
-            return next(self.list_iterator)
+            if self.current_bucket_index >= len(self.buckets):
+                raise StopIteration
+
+            while True:
+                if self.list_iterator is None:
+                    self.find_next_bucket()
+                try:
+                    return next(self.list_iterator)
+                except StopIteration:
+                    self.current_bucket_index += 1
+                    self.find_next_bucket()
 
     def __init__(self):
         self.size = 0
@@ -110,3 +120,21 @@ class HashMap:
 
     def __iter__(self):
         return self.HashMapIterator(self.buckets)
+
+
+# Пример использования:
+hash_map = HashMap()
+
+hash_map.put("+79005554433", "Андрей")
+hash_map.put("+79005554432", "Алексей")
+hash_map.put("+79005554434", "Дарья3")
+hash_map.put("+79005554435", "Дарья4")
+hash_map.put("+79005554436", "Дарья5")
+hash_map.put("+79005554437", "Дарья6")
+hash_map.put("+79005554438", "Дарья7")
+hash_map.put("+79005554439", "Дарья8")
+
+
+for entity in hash_map:
+    print(entity.key, "-", entity.value)
+
